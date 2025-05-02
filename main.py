@@ -36,25 +36,6 @@ class ImageReader:
 
 if __name__ == '__main__':
 
-    def clean_lines(lines): 
-        lines = [line.strip() for line in text.splitlines() if line.strip() and line.lower() != 'coy']
-        return lines
-
-    def separate_sections(original):
-        section_keys = ['Fecha', 'Detalle', 'Monto cargo', 'Monto abono'] 
-
-        separated = {}
-        current_key = None
-
-        for line in original:
-            if line in section_keys:
-                current_key = line
-                separated[current_key] = []
-            else:
-                if current_key: 
-                    separated[current_key].append(line)
-        return separated
-
     def publish(df):
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = Credentials.from_service_account_file('credentials.json', scopes=scope)
@@ -98,7 +79,9 @@ if __name__ == '__main__':
        
 
     def parse_text_to_dataframe(text: str) -> pd.DataFrame:
+        print(text)
         lines = [line.strip() for line in text.splitlines() if line.strip()]
+        print(lines)
         
         date_pattern = r'\d{2}/\d{2}/\d{4}'
         first_line = lines[0]
