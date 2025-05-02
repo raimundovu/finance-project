@@ -80,12 +80,19 @@ if __name__ == '__main__':
             print(f"Hoja '{nombre_mes}' creada.")
             set_with_dataframe(worksheet, df.head(0))
 
-        existing_data = worksheet.get_all_values()
+        existing_data = worksheet.col_values(1)
         next_row = len(existing_data) + 1
 
-        # Escribir datos sin sobrescribir
-        set_with_dataframe(worksheet, df, row=next_row, include_column_header=False)
+        include_headers = len(existing_data) == 0
 
+        
+        set_with_dataframe(
+            worksheet,
+            df.iloc[:, :3],         
+            row=next_row,           
+            col=1,                  
+            include_column_header=include_headers
+        )
         spreadsheet_url = f"https://docs.google.com/spreadsheets/d/{spreadsheet.id}"
         print(f"¡Datos subidos exitosamente! Puedes verlo aquí: {spreadsheet_url}")
        
@@ -105,8 +112,9 @@ if __name__ == '__main__':
         for line in lines:
             amount_match = re.search(r'-\$[\d\.\,]+', line)
             if amount_match:
-                monto = amount_match.group()
-                detalle = line.replace(current_date, '').replace(monto, '').replace('coy', '').strip()
+                monto_raw = amount_match.group()
+                monto = monto_raw.replace('-$', '').replace('.', '')
+                detalle = line.replace(current_date, '').replace(monto_raw, '').replace('coy', '').replace('poy', '').strip()
                 rows.append({
                     "Fecha": current_date,
                     "Detalle": detalle,
@@ -119,7 +127,6 @@ if __name__ == '__main__':
 
     ir = ImageReader(OS.Mac)
     text = ir.extract_text('images/image.png', lang='eng')
-    print(text)
     
     df = parse_text_to_dataframe(text)
 
